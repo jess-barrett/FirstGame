@@ -10,11 +10,13 @@ public class Player : MonoBehaviour
     private PlayerInputs input;
     private InputAction jumpAction, leftAction, rightAction;
     private Vector2 moveVector = Vector2.zero;
+    private Vector2 moveDirection = Vector2.zero;
     public float moveSpeed = 5f;
     public float airSpeed = 4f;
     public float fallSpeed = 2f;
     public float jumpDeceleration = 0.5f;
     public float jumpForce = 25f; // The base jump force
+    public bool facingRight = true;
     private bool inAir = false;
     [SerializeField] private bool isJumping = false;
     [SerializeField] private bool movingLeft = false;
@@ -90,6 +92,7 @@ public class Player : MonoBehaviour
             }
         }
 
+        FlipCharacter();
     } // End Update
 
     private void OnEnable() 
@@ -100,6 +103,8 @@ public class Player : MonoBehaviour
         jumpAction.performed += OnJumpPerformed;
         leftAction.performed += OnLeftPerformed;
         rightAction.performed += OnRightPerformed;
+
+        inputs.Enable();
     }
 
     private void OnDisable()
@@ -110,6 +115,8 @@ public class Player : MonoBehaviour
         jumpAction.performed -= OnJumpPerformed;
         leftAction.performed -= OnLeftPerformed;
         rightAction.performed -= OnRightPerformed;
+
+        inputs.Disable();
     }
 
     private void Jump()
@@ -152,6 +159,21 @@ public class Player : MonoBehaviour
             coyoteTimer = 0f;
             rigidBody.gravityScale = 5;
         }   
+    }
+
+    private void FlipCharacter()
+    {
+        // Check if the character is facing the opposite direction
+        if (((facingRight && movingLeft) || (!facingRight && movingRight)) && !(movingLeft && movingRight))
+        {
+            // Flip the character by changing the x scale
+            Vector3 newScale = transform.localScale;
+            newScale.x *= -1;
+            transform.localScale = newScale;
+
+            // Update the facingRight variable
+            facingRight = !facingRight;
+        }
     }
 
 } // end class
