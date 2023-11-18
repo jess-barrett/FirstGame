@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
 {
     private Rigidbody2D rigidBody;
     private PlayerInputs input;
-    private InputAction jumpAction, leftAction, rightAction;
+    private InputAction jump, left, right;
     private Vector2 moveVector = Vector2.zero;
     private Vector2 moveDirection = Vector2.zero;
     public float moveSpeed = 5f;
@@ -32,9 +32,9 @@ public class Player : MonoBehaviour
     {
         input = new PlayerInputs();
         rigidBody = GetComponent<Rigidbody2D>();
-        jumpAction = input.Player.Jump;
-        leftAction = input.Player.Left;
-        rightAction = input.Player.Right;
+        jump = input.Player.Jump;
+        left = input.Player.Left;
+        right = input.Player.Right;
     }
 
     void FixedUpdate()
@@ -54,7 +54,8 @@ public class Player : MonoBehaviour
         }
 
         // If not holding A or D and in the Air, but still moving left or right
-        if (!movingLeft && !movingRight && inAir && (rigidBody.velocity.x > 0 || rigidBody.velocity.x < 0)) {
+        if (!movingLeft && !movingRight && inAir && (rigidBody.velocity.x > 0 || rigidBody.velocity.x < 0)) 
+        {
             initialSpeed = moveSpeed;
             float t = Mathf.InverseLerp(1f,-fallSpeed, rigidBody.velocity.y);
             currentSpeed = Mathf.Lerp(fallSpeed, 0.5f, t);
@@ -63,12 +64,14 @@ public class Player : MonoBehaviour
             if(rigidBody.velocity.x < 0) 
                 rigidBody.velocity = new Vector2(-currentSpeed, rigidBody.velocity.y);
         }
-        else {
+        else if (!(movingLeft && movingRight)) 
+        {
             // Holding A on the ground
             if (movingLeft && !inAir)
             {
                 rigidBody.position += Vector2.left * moveSpeed * Time.fixedDeltaTime;
             }
+
             // Holding A in the Air
             else if (movingLeft && inAir)
             {
@@ -76,10 +79,11 @@ public class Player : MonoBehaviour
             }
 
             // Holding D on the ground
-            if (movingRight && !inAir)
+            else if (movingRight && !inAir)
             {
                 rigidBody.position += Vector2.right * moveSpeed * Time.fixedDeltaTime;
             }
+
             // Holding D in the Air
             else if (movingRight && inAir)
             {
@@ -87,7 +91,8 @@ public class Player : MonoBehaviour
             }
 
             // Coyote time countdown
-            if (!isJumping && !inAir && rigidBody.velocity.y < 0) {
+            if (!isJumping && !inAir && rigidBody.velocity.y < 0) 
+            {
                 coyoteTimer += Time.deltaTime;
             }
         }
@@ -97,26 +102,22 @@ public class Player : MonoBehaviour
 
     private void OnEnable() 
     {
-        jumpAction.Enable();
-        leftAction.Enable();
-        rightAction.Enable();
-        jumpAction.performed += OnJumpPerformed;
-        leftAction.performed += OnLeftPerformed;
-        rightAction.performed += OnRightPerformed;
-
-        inputs.Enable();
+        jump.Enable();
+        left.Enable();
+        right.Enable();
+        jump.performed += OnJumpPerformed;
+        left.performed += OnLeftPerformed;
+        right.performed += OnRightPerformed;
     }
 
     private void OnDisable()
     {
-        jumpAction.Disable();
-        leftAction.Disable();
-        rightAction.Disable();
-        jumpAction.performed -= OnJumpPerformed;
-        leftAction.performed -= OnLeftPerformed;
-        rightAction.performed -= OnRightPerformed;
-
-        inputs.Disable();
+        jump.Disable();
+        left.Disable();
+        right.Disable();
+        jump.performed -= OnJumpPerformed;
+        left.performed -= OnLeftPerformed;
+        right.performed -= OnRightPerformed;
     }
 
     private void Jump()
